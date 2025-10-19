@@ -612,7 +612,7 @@ SOFTWARE.
 
 ## 👤 Author
 
-**Taye David Ibuku**
+**Taye David Ibukun**
 
 - 🐙 GitHub: [@Oluwataye](https://github.com/Oluwataye)
 - 📧 Email: davidtayeibukunoni@gmail.com
