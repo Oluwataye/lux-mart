@@ -3,483 +3,867 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickMart POS - Super Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>Admin Dashboard - QuickMart POS</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .gradient-bg { background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%); }
-        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .hover-lift { transition: transform 0.2s ease; }
-        .hover-lift:hover { transform: translateY(-2px); }
-        .sidebar-item { transition: all 0.3s ease; }
-        .sidebar-item.active { background: #ff6b35; color: white; }
-        .pulse-animation { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a2332;
+            --secondary: #ff6b35;
+            --accent: #f8f9fa;
+            --success: #28a745;
+            --warning: #ffc107;
+            --error: #dc3545;
+            --info: #17a2b8;
+            --text-dark: #2c3e50;
+            --text-light: #6c757d;
+            --border: #dee2e6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--accent);
+            color: var(--text-dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff5722;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.success { background: rgba(40, 167, 69, 0.1); color: var(--success); }
+        .stat-icon.warning { background: rgba(255, 193, 7, 0.1); color: var(--warning); }
+        .stat-icon.info { background: rgba(23, 162, 184, 0.1); color: var(--info); }
+        .stat-icon.primary { background: rgba(26, 35, 50, 0.1); color: var(--primary); }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--error); }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .chart-filter {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Recent Activity */
+        .activity-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .activity-item:hover {
+            background: var(--accent);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.sale { background: rgba(40, 167, 69, 0.1); color: var(--success); }
+        .activity-icon.inventory { background: rgba(255, 193, 7, 0.1); color: var(--warning); }
+        .activity-icon.user { background: rgba(23, 162, 184, 0.1); color: var(--info); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-details {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-align: right;
+        }
+
+        /* Low Stock Alert */
+        .alert-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 193, 7, 0.05);
+            border-left: 3px solid var(--warning);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .alert-info {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-stock {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: rgba(220, 53, 69, 0.2);
+            color: #721c24;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
     </style>
-<base target="_blank">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <header class="gradient-bg text-white p-4 shadow-lg">
-        <div class="flex justify-between items-center max-w-full">
-            <div class="flex items-center space-x-4">
-                <div class="text-2xl font-bold">QuickMart POS</div>
-                <div class="text-sm opacity-80">Super Admin Panel</div>
-            </div>
-            <div class="flex items-center space-x-6">
-                <div class="text-sm">
-                    <div class="font-medium" id="admin-name">System Administrator</div>
-                    <div class="text-xs opacity-80" id="current-time">2025-10-19 14:30:25</div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-3 h-3 bg-green-400 rounded-full pulse-animation"></div>
-                        <span class="text-sm">Online</span>
-                    </div>
-                    <button onclick="auth.logout()" 
-                            class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm">
-                        🚪 Logout
-                    </button>
-                </div>
-            </div>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i data-feather="shopping-cart"></i>
+            <span>QuickMart POS</span>
         </div>
-    </header>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="admin-dashboard.html" class="nav-link active">
+                        <i data-feather="bar-chart-2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i data-feather="shopping-bag"></i>
+                        <span>POS</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="inventory.html" class="nav-link">
+                        <i data-feather="package"></i>
+                        <span>Inventory</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="transactions.html" class="nav-link">
+                        <i data-feather="file-text"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="analytics.html" class="nav-link">
+                        <i data-feather="trending-up"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="login.html" class="nav-link">
+                        <i data-feather="log-out"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 
     <!-- Main Content -->
-    <div class="flex h-screen pt-16">
-        <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-lg p-4 overflow-y-auto">
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Admin Menu</h3>
-                <div class="space-y-2">
-                    <button class="sidebar-item w-full text-left p-3 rounded-lg bg-orange-500 text-white font-medium" data-section="dashboard">
-                        📊 Dashboard
-                    </button>
-                    <button class="sidebar-item w-full text-left p-3 rounded-lg hover:bg-gray-100" data-section="users">
-                        👥 User Management
-                    </button>
-                    <button class="sidebar-item w-full text-left p-3 rounded-lg hover:bg-gray-100" data-section="system">
-                        ⚙️ System Settings
-                    </button>
-                    <button class="sidebar-item w-full text-left p-3 rounded-lg hover:bg-gray-100" data-section="reports">
-                        📈 Reports
-                    </button>
-                    <button class="sidebar-item w-full text-left p-3 rounded-lg hover:bg-gray-100" data-section="audit">
-                        🔍 Audit Logs
-                    </button>
-                    <button class="sidebar-item w-full text-left p-3 rounded-lg hover:bg-gray-100" data-section="backup">
-                        💾 Backup & Restore
-                    </button>
-                </div>
+    <main class="main-content">
+        <div class="header">
+            <div>
+                <h1 class="page-title">Dashboard Overview</h1>
+                <p style="color: var(--text-light); margin-top: 0.5rem;">Welcome back! Here's what's happening today.</p>
             </div>
-            
-            <!-- Quick Actions -->
-            <div class="border-t pt-4">
-                <h4 class="text-sm font-medium text-gray-700 mb-3">Quick Actions</h4>
-                <div class="space-y-2">
-                    <button onclick="adminDashboard.addNewUser()" 
-                            class="w-full p-2 text-left text-sm bg-gray-100 hover:bg-gray-200 rounded">
-                        ➕ Add User
-                    </button>
-                    <button onclick="adminDashboard.systemBackup()" 
-                            class="w-full p-2 text-left text-sm bg-gray-100 hover:bg-gray-200 rounded">
-                        💾 Backup Now
-                    </button>
-                    <button onclick="adminDashboard.clearCache()" 
-                            class="w-full p-2 text-left text-sm bg-gray-100 hover:bg-gray-200 rounded">
-                        🗑️ Clear Cache
-                    </button>
-                    <button onclick="adminDashboard.systemInfo()" 
-                            class="w-full p-2 text-left text-sm bg-gray-100 hover:bg-gray-200 rounded">
-                        ℹ️ System Info
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="flex-1 p-6 overflow-y-auto">
-            <!-- Dashboard Section -->
-            <div id="dashboard-section" class="section-content">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Super Admin Dashboard</h2>
-                    <p class="text-gray-600">Welcome to the system administration panel. Manage your POS system here.</p>
-                </div>
-
-                <!-- System Overview Cards -->
-                <div class="grid grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow-md p-6 hover-lift">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-2xl font-bold text-blue-600" id="total-users">0</div>
-                                <div class="text-sm text-gray-600">Total Users</div>
-                            </div>
-                            <div class="text-3xl">👥</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-md p-6 hover-lift">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-2xl font-bold text-green-600" id="active-sessions">0</div>
-                                <div class="text-sm text-gray-600">Active Sessions</div>
-                            </div>
-                            <div class="text-3xl">💻</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-md p-6 hover-lift">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-2xl font-bold text-orange-600" id="total-products">0</div>
-                                <div class="text-sm text-gray-600">Total Products</div>
-                            </div>
-                            <div class="text-3xl">📦</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-md p-6 hover-lift">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-2xl font-bold text-purple-600" id="today-revenue">$0.00</div>
-                                <div class="text-sm text-gray-600">Today's Revenue</div>
-                            </div>
-                            <div class="text-3xl">💰</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent System Activity</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody id="activity-table-body" class="bg-white divide-y divide-gray-200">
-                                <!-- Activity will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- System Status -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">System Status</h3>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="text-center">
-                            <div class="text-2xl mb-2">🟢</div>
-                            <div class="text-sm font-medium">Database</div>
-                            <div class="text-xs text-gray-600">Operational</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl mb-2">🟢</div>
-                            <div class="text-sm font-medium">POS Terminal</div>
-                            <div class="text-xs text-gray-600">Online</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl mb-2">🟢</div>
-                            <div class="text-sm font-medium">Backup System</div>
-                            <div class="text-xs text-gray-600">Healthy</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- User Management Section -->
-            <div id="users-section" class="section-content hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">User Management</h2>
-                    <p class="text-gray-600">Manage system users and their permissions.</p>
-                </div>
-
-                <!-- Add User Button -->
-                <div class="mb-6">
-                    <button onclick="adminDashboard.showAddUserModal()" 
-                            class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                        ➕ Add New User
-                    </button>
-                </div>
-
-                <!-- Users Table -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Login</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body" class="bg-white divide-y divide-gray-200">
-                                <!-- Users will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Settings Section -->
-            <div id="system-section" class="section-content hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">System Settings</h2>
-                    <p class="text-gray-600">Configure system-wide settings and preferences.</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-6">
-                    <!-- General Settings -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">General Settings</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
-                                <input type="text" id="store-name" value="QuickMart" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>
-                                <input type="number" id="tax-rate" value="8" step="0.1"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-                                <select id="currency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                                    <option value="USD">USD - US Dollar</option>
-                                    <option value="EUR">EUR - Euro</option>
-                                    <option value="GBP">GBP - British Pound</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Settings -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Security Settings</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-700">Session Timeout (minutes)</span>
-                                <input type="number" id="session-timeout" value="30" min="5" max="480"
-                                       class="w-20 px-2 py-1 border border-gray-300 rounded text-center">
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-700">Require Strong Passwords</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="strong-passwords" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-700">Enable Audit Logging</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="audit-logging" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Save Settings Button -->
-                <div class="mt-6">
-                    <button onclick="adminDashboard.saveSettings()" 
-                            class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                        💾 Save Settings
-                    </button>
-                </div>
-            </div>
-
-            <!-- Reports Section -->
-            <div id="reports-section" class="section-content hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">System Reports</h2>
-                    <p class="text-gray-600">Generate comprehensive system reports and analytics.</p>
-                </div>
-
-                <!-- Report Types -->
-                <div class="grid grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center hover-lift">
-                        <div class="text-4xl mb-4">📊</div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Sales Report</h3>
-                        <p class="text-sm text-gray-600 mb-4">Comprehensive sales analytics and trends</p>
-                        <button onclick="adminDashboard.generateSalesReport()" 
-                                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-                            Generate
-                        </button>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center hover-lift">
-                        <div class="text-4xl mb-4">👥</div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">User Activity</h3>
-                        <p class="text-sm text-gray-600 mb-4">User login and activity patterns</p>
-                        <button onclick="adminDashboard.generateUserReport()" 
-                                class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
-                            Generate
-                        </button>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center hover-lift">
-                        <div class="text-4xl mb-4">🔍</div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Audit Report</h3>
-                        <p class="text-sm text-gray-600 mb-4">System audit and security logs</p>
-                        <button onclick="adminDashboard.generateAuditReport()" 
-                                class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors">
-                            Generate
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Audit Logs Section -->
-            <div id="audit-section" class="section-content hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Audit Logs</h2>
-                    <p class="text-gray-600">Monitor system activities and security events.</p>
-                </div>
-
-                <!-- Audit Log Table -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-800">System Audit Logs</h3>
-                            <button onclick="adminDashboard.clearAuditLogs()" 
-                                    class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm">
-                                🗑️ Clear Logs
-                            </button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                </tr>
-                            </thead>
-                            <tbody id="audit-table-body" class="bg-white divide-y divide-gray-200">
-                                <!-- Audit logs will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Backup & Restore Section -->
-            <div id="backup-section" class="section-content hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Backup & Restore</h2>
-                    <p class="text-gray-600">Manage system backups and data restoration.</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-6">
-                    <!-- Backup -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Create Backup</h3>
-                        <p class="text-sm text-gray-600 mb-4">Create a complete backup of your system data.</p>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Backup Name</label>
-                                <input type="text" id="backup-name" 
-                                       placeholder="Backup_2025-10-19" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                            </div>
-                            <button onclick="adminDashboard.createBackup()" 
-                                    class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                💾 Create Backup
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Restore -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Restore Data</h3>
-                        <p class="text-sm text-gray-600 mb-4">Restore system data from a backup file.</p>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Select Backup</label>
-                                <select id="backup-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                                    <option value="">Choose a backup...</option>
-                                </select>
-                            </div>
-                            <button onclick="adminDashboard.restoreData()" 
-                                    class="w-full px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                                🔄 Restore Data
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add User Modal -->
-    <div id="add-user-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold">Add New User</h3>
-                <button onclick="adminDashboard.closeAddUserModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="refreshData()">
+                    <i data-feather="refresh-cw"></i>
+                    Refresh
                 </button>
             </div>
-            
-            <form id="add-user-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="user-fullname" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                    <input type="text" id="user-username" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="user-email" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="user-password" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <select id="user-role" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                        <option value="">Select Role</option>
-                        <option value="cashier">Cashier</option>
-                        <option value="manager">Manager</option>
-                        <option value="super_admin">Super Admin</option>
-                    </select>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="adminDashboard.closeAddUserModal()" 
-                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                        Add User
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
 
-    <script src="main.js"></script>
-    <script src="auth.js"></script>
-    <script src="admin-dashboard.js"></script>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i data-feather="dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Today's Sales</div>
+                    <div class="stat-value" id="todaySales">₦0.00</div>
+                    <div class="stat-change positive" id="salesChange">+0% from yesterday</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i data-feather="shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Transactions</div>
+                    <div class="stat-value" id="todayTransactions">0</div>
+                    <div class="stat-change positive" id="transactionsChange">+0% from yesterday</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i data-feather="alert-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Low Stock Items</div>
+                    <div class="stat-value" id="lowStockCount">0</div>
+                    <div class="stat-change">Items need reorder</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon primary">
+                    <i data-feather="package"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value" id="totalProducts">0</div>
+                    <div class="stat-change">In inventory</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Sales Overview</h3>
+                    <div class="chart-filter">
+                        <button class="filter-btn active" onclick="changeChart('week')">Week</button>
+                        <button class="filter-btn" onclick="changeChart('month')">Month</button>
+                        <button class="filter-btn" onclick="changeChart('year')">Year</button>
+                    </div>
+                </div>
+                <canvas id="salesChart" height="100"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Top Categories</h3>
+                </div>
+                <canvas id="categoryChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Alerts -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <div class="activity-section">
+                <div class="activity-header">
+                    <h3 class="chart-title">Recent Activity</h3>
+                    <a href="transactions.html" style="color: var(--secondary); text-decoration: none; font-weight: 500;">View All</a>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <div class="empty-state">
+                        <i data-feather="activity"></i>
+                        <p>No recent activity</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-section">
+                <div class="activity-header">
+                    <h3 class="chart-title">Low Stock Alerts</h3>
+                </div>
+                <div id="lowStockAlerts">
+                    <div class="empty-state">
+                        <i data-feather="check-circle"></i>
+                        <p>All items well stocked</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+
+        // Initialize Charts
+        let salesChart, categoryChart;
+
+        // Initialize Dashboard
+        function initDashboard() {
+            loadStats();
+            initSalesChart();
+            initCategoryChart();
+            loadRecentActivity();
+            loadLowStockAlerts();
+        }
+
+        // Load Statistics
+        function loadStats() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            
+            const today = new Date().toDateString();
+            const todayTransactions = transactions.filter(t => 
+                new Date(t.date).toDateString() === today
+            );
+
+            // Today's sales
+            const todaySales = todayTransactions.reduce((sum, t) => sum + t.total, 0);
+            document.getElementById('todaySales').textContent = `₦${todaySales.toFixed(2)}`;
+            
+            // Transactions count
+            document.getElementById('todayTransactions').textContent = todayTransactions.length;
+            
+            // Low stock items (less than 10)
+            const lowStock = products.filter(p => p.stock < 10);
+            document.getElementById('lowStockCount').textContent = lowStock.length;
+            
+            // Total products
+            document.getElementById('totalProducts').textContent = products.length;
+
+            // Calculate yesterday's stats for comparison
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayTransactions = transactions.filter(t => 
+                new Date(t.date).toDateString() === yesterday.toDateString()
+            );
+            const yesterdaySales = yesterdayTransactions.reduce((sum, t) => sum + t.total, 0);
+            
+            // Calculate percentage changes
+            const salesChange = yesterdaySales > 0 
+                ? ((todaySales - yesterdaySales) / yesterdaySales * 100).toFixed(1)
+                : 0;
+            const transactionsChange = yesterdayTransactions.length > 0
+                ? ((todayTransactions.length - yesterdayTransactions.length) / yesterdayTransactions.length * 100).toFixed(1)
+                : 0;
+
+            document.getElementById('salesChange').textContent = 
+                `${salesChange >= 0 ? '+' : ''}${salesChange}% from yesterday`;
+            document.getElementById('salesChange').className = 
+                `stat-change ${salesChange >= 0 ? 'positive' : 'negative'}`;
+
+            document.getElementById('transactionsChange').textContent = 
+                `${transactionsChange >= 0 ? '+' : ''}${transactionsChange}% from yesterday`;
+            document.getElementById('transactionsChange').className = 
+                `stat-change ${transactionsChange >= 0 ? 'positive' : 'negative'}`;
+        }
+
+        // Initialize Sales Chart
+        function initSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            
+            // Get last 7 days
+            const last7Days = Array.from({length: 7}, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (6 - i));
+                return d;
+            });
+
+            const labels = last7Days.map(d => 
+                d.toLocaleDateString('en-US', { weekday: 'short' })
+            );
+
+            const data = last7Days.map(d => {
+                const dayTransactions = transactions.filter(t => 
+                    new Date(t.date).toDateString() === d.toDateString()
+                );
+                return dayTransactions.reduce((sum, t) => sum + t.total, 0);
+            });
+
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sales (₦)',
+                        data: data,
+                        borderColor: '#ff6b35',
+                        backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₦' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Category Chart
+        function initCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            
+            // Calculate sales by category
+            const categorySales = {};
+            transactions.forEach(t => {
+                t.items.forEach(item => {
+                    const category = item.category || 'Other';
+                    categorySales[category] = (categorySales[category] || 0) + (item.price * item.quantity);
+                });
+            });
+
+            const labels = Object.keys(categorySales);
+            const data = Object.values(categorySales);
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#ff6b35',
+                            '#1a2332',
+                            '#28a745',
+                            '#ffc107',
+                            '#17a2b8',
+                            '#dc3545'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load Recent Activity
+        function loadRecentActivity() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const container = document.getElementById('activityList');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-feather="activity"></i>
+                        <p>No recent activity</p>
+                    </div>
+                `;
+                feather.replace();
+                return;
+            }
+
+            // Get last 10 transactions
+            const recent = transactions.slice(-10).reverse();
+            
+            container.innerHTML = recent.map(t => {
+                const date = new Date(t.date);
+                const timeAgo = getTimeAgo(date);
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon sale">
+                            <i data-feather="shopping-cart"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Sale #${t.id}</div>
+                            <div class="activity-details">
+                                ${t.items.length} items • ₦${t.total.toFixed(2)} • ${t.paymentMethod}
+                            </div>
+                        </div>
+                        <div class="activity-time">${timeAgo}</div>
+                    </div>
+                `;
+            }).join('');
+
+            feather.replace();
+        }
+
+        // Load Low Stock Alerts
+        function loadLowStockAlerts() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const container = document.getElementById('lowStockAlerts');
+            
+            const lowStock = products.filter(p => p.stock < 10).sort((a, b) => a.stock - b.stock);
+            
+            if (lowStock.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-feather="check-circle"></i>
+                        <p>All items well stocked</p>
+                    </div>
+                `;
+                feather.replace();
+                return;
+            }
+
+            container.innerHTML = lowStock.map(p => `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <div class="alert-title">${p.name}</div>
+                        <div class="alert-stock">Current stock: ${p.stock} units</div>
+                    </div>
+                    <span class="badge ${p.stock < 5 ? 'badge-danger' : 'badge-warning'}">
+                        ${p.stock < 5 ? 'Critical' : 'Low'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Change Chart Period
+        function changeChart(period) {
+            document.querySelectorAll('.filter-btn').forEach(btn => 
+                btn.classList.remove('active')
+            );
+            event.target.classList.add('active');
+            
+            // Reload chart with new period
+            // Implementation would depend on specific requirements
+        }
+
+        // Refresh Data
+        function refreshData() {
+            loadStats();
+            salesChart.destroy();
+            categoryChart.destroy();
+            initSalesChart();
+            initCategoryChart();
+            loadRecentActivity();
+            loadLowStockAlerts();
+            
+            // Show success message
+            alert('Dashboard refreshed successfully!');
+        }
+
+        // Helper: Get time ago
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            loadStats();
+            loadRecentActivity();
+        }, 300000);
+    </script>
 </body>
 </html>
