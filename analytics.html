@@ -19,6 +19,64 @@
 <base target="_blank">
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Authentication Check Script -->
+    <script>
+        (function() {
+            // Check if we're on login page - if so, don't run authentication check
+            if (window.location.pathname.includes('login.html')) {
+                return;
+            }
+            
+            // Check authentication
+            const session = localStorage.getItem('luxmart_session');
+            if (!session) {
+                // Redirect to login with reason
+                const loginUrl = window.location.href.replace(/\/[^\/]*$/, '/login.html?reason=not_authenticated');
+                window.location.href = loginUrl;
+                return;
+            }
+            
+            try {
+                const sessionData = JSON.parse(session);
+                const now = new Date().getTime();
+                
+                // Check session timeout
+                if (now - sessionData.loginTime > sessionData.sessionTimeout) {
+                    localStorage.removeItem('luxmart_session');
+                    const loginUrl = window.location.href.replace(/\/[^\/]*$/, '/login.html?reason=session_expired');
+                    window.location.href = loginUrl;
+                    return;
+                }
+                
+                // Valid session - set up user data
+                window.currentUser = sessionData.user;
+                
+                // Set up session timeout reset on activity
+                document.addEventListener('click', () => {
+                    if (window.luxMartAuth) {
+                        window.luxMartAuth.resetSessionTimeout();
+                    }
+                });
+                
+                document.addEventListener('keypress', () => {
+                    if (window.luxMartAuth) {
+                        window.luxMartAuth.resetSessionTimeout();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Session error:', error);
+                const loginUrl = window.location.href.replace(/\/[^\/]*$/, '/login.html?reason=session_error');
+                window.location.href = loginUrl;
+            }
+        })();
+    </script>
+    
+    <!-- Rest of your analytics.html content -->
+    <header class="luxury-bg text-white p-4 shadow-lg">
+        <!-- Your existing header content -->
+    </header>
+    <!-- ... rest of your HTML ... -->
     <!-- Header -->
     <header class="gradient-bg text-white p-4 shadow-lg">
         <div class="flex justify-between items-center max-w-full">
